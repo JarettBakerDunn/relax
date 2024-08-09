@@ -17,7 +17,7 @@ RUN apt-get update && \
     python2.7 \
     gnulib \
     sudo \
-    intel-mkl-full
+    libmkl-dev 
 
 RUN useradd \
 --create-home \
@@ -44,4 +44,8 @@ RUN tar -xvf gmt-4.5.18-src.tar.bz2; cd gmt-4.5.18; ./configure; make; make inst
 RUN tar -xvf proj-4.8.0.tar.gz ; cd proj-4.8.0; ./configure; make; make install;
 USER relax_user
 ENV PATH="/home/relax_user/netcdf-4.1.3/f90:${PATH}"
-#RUN cd relax; echo "password" | sudo -S ./waf configure --netcdf-incdir=/usr/local/include --netcdf-libdir=/usr/local/lib
+
+RUN curl -L -O https://registrationcenter-download.intel.com/akdlm/IRC_NAS/801143de-6c01-4181-9911-57e00fe40181/l_fortran-compiler_p_2024.2.0.426_offline.sh;
+
+
+RUN cd relax; echo "password" | sudo -S ./waf configure --netcdf-incdir=/usr/local/include --netcdf-libdir=/usr/local/lib --mkl-incdir=/usr/include/mkl --mkl-libdir=/usr/lib/x86_64-linux-gnu --openmp-flag=-fopenmp

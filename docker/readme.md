@@ -9,6 +9,9 @@ need:
 Currently when running ./waf to build relax, the linker fails when it tries to find MKL even though configure finds MKL just fine. maybe setting the MKL options below will help.
 for ./waf configure.
 
+must set flags to all the right paths.
+try intel fortran compiler OR try fttw, gfortran and mkl may not work that well together.
+
 MKL Options:
     --mkl-dir=MKL_DIR   Base directory where mkl is installed
     --mkl-incdir=MKL_INCDIR
