@@ -9,15 +9,29 @@ RUN apt-get update && \
     git \
     curl \
     libnetcdf-dev \
+    libnetcdff-dev \
     autoconf \
     automake \
+    gmt \
+    gmt-gshhg \
     autoconf-archive \
-    libpython2.7-dev \
-    libpython2.7 \
-    python2.7 \
+    python-is-python3 \
     gnulib \
     sudo \
-    libmkl-dev 
+    proj-bin \
+    libmkl-full-dev \
+    software-properties-common
+
+RUN apt-get install nano
+
+RUN curl -L -O https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB
+RUN apt-key add GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB
+RUN rm GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB
+RUN add-apt-repository "deb https://apt.repos.intel.com/oneapi all main"
+RUN apt install --yes intel-hpckit
+RUN cd /opt/intel/oneapi; chmod +x setvars.sh; 
+
+
 
 RUN useradd \
 --create-home \
@@ -25,27 +39,12 @@ relax_user && echo "relax_user:password" | chpasswd
 
 RUN sudo adduser relax_user sudo
 
-RUN ln -s /usr/bin/python2.7 /usr/bin/python;
-
 USER relax_user
+
+CMD cd /opt/intel/oneapi/; . ./setvars.sh; /bin/bash
 
 WORKDIR /home/relax_user
 
-RUN git clone 'https://github.com/geodynamics/relax'; 
-RUN curl -L -O https://github.com/GenericMappingTools/gmt/releases/download/4.5.18/gmt-4.5.18-src.tar.bz2;
-RUN curl -L -O https://src.rrz.uni-hamburg.de/object/ead16cb3b671f767396387dcb3c1a814-11097157-1466798847/netcdf-4.1.3.tar.gz;
-RUN curl -L -O https://download.osgeo.org/proj/proj-4.8.0.tar.gz;
+RUN git clone 'https://github.com/geodynamics/relax.git';
 
-USER root
-RUN tar -xvf netcdf-4.1.3.tar.gz; cd netcdf-4.1.3; ./configure --disable-dap --disable-netcdf-4; make; make install;
-
-RUN tar -xvf gmt-4.5.18-src.tar.bz2; cd gmt-4.5.18; ./configure; make; make install-gmt;
-
-RUN tar -xvf proj-4.8.0.tar.gz ; cd proj-4.8.0; ./configure; make; make install;
-USER relax_user
-ENV PATH="/home/relax_user/netcdf-4.1.3/f90:${PATH}"
-
-RUN curl -L -O https://registrationcenter-download.intel.com/akdlm/IRC_NAS/801143de-6c01-4181-9911-57e00fe40181/l_fortran-compiler_p_2024.2.0.426_offline.sh;
-
-
-RUN cd relax; echo "password" | sudo -S ./waf configure --netcdf-incdir=/usr/local/include --netcdf-libdir=/usr/local/lib --mkl-incdir=/usr/include/mkl --mkl-libdir=/usr/lib/x86_64-linux-gnu --openmp-flag=-fopenmp
+#RUN cd relax; ./waf configure --netcdf-dir=/usr --netcdf-libdir=/usr/lib/x86_64-linux-gnu/ --mkl-dir=/usr --mkl-incdir=/usr/include/mkl --mkl-libdir=/usr/lib/x86_64-linux-gnu/ --openmp-flag="-fopenmp"
